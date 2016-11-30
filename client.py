@@ -22,7 +22,7 @@ def main():
         whatToDo = connect.recv(1024)
         whatToDo = whatToDo.decode("ascii")
         if whatToDo == "c":
-            shot = int(input ("Quelle case voulez-vous jouer ?"))
+            shot = int(input ("Quelle case voulez-vous jouer ? "))
             shot = str(shot)
             shot = shot.encode("ascii")
             connect.send(shot)
