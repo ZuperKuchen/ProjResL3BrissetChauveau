@@ -3,6 +3,7 @@
 from grid import *
 import  random
 
+
 def main():
     grids = [grid(), grid(), grid()]
     current_player = J1
@@ -29,6 +30,6 @@ def main():
     if grids[0].gameOver() == J1:
         print("You win !")
     else:
-        print("you loose !")
+        print("You loose !")
 
 main()
