@@ -62,8 +62,6 @@ def main():
         
     print("Le jeu est fini")
     
-    grids[0].display()
-    
     if grids[0].gameOver() == J1:
         J1connect.send(winMessage)
         J2connect.send(loseMessage)
