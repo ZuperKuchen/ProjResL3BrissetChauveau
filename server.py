@@ -18,25 +18,33 @@ def main():
     J2connect, J2infos = connect.accept()
     print (J2infos, "J2 vient de se connecter.")
 
-    globalMessage = "Les deux joueurs sont connectes, le jeu commence."
-    globalMessage = globalMessage.encode("ascii")
-    J1connect.send(globalMessage)
-    J2connect.send(globalMessage)
+    J1 = "1"
+    J2 = "2"
+    J1 = J1.encode("ascii")
+    J2 = J2.encode("ascii")
+    J1connect.send(J1)
+    J2connect.send(J2)
 
     #Le jeu commence
 
     caseMessage = "c"
     caseMessage = caseMessage.encode("ascii")
+    
     winMessage = "w"
     winMessage = winMessage.encode("ascii")
     loseMessage = "l"
     loseMessage = loseMessage.encode("ascii")
-
-    grids = [grid(), grid(), grid()]
-    current_player = J1
-    grids[0].display()
     
-    while grids[0].gameOver() == -1:
+    freeMessage = "f"
+    freeMessage = freeMessage.encode("ascii")
+    usedMessage = "u"
+    usedMessage = usedMessage.encode("ascii")
+
+    gridG = grid()
+    current_player = J1
+    gridG.display()
+    
+    while gridG.gameOver() == -1:
         if current_player == J1:
             shot = -1
             while shot <0 or shot >=NB_CELLS:
@@ -51,18 +59,25 @@ def main():
                 shot = J2connect.recv(1024)
                 shot = shot.decode("ascii")
                 shot = int(shot)
-        if (grids[0].cells[shot] != EMPTY):
-            grids[current_player].cells[shot] = grids[0].cells[shot]
+        if (gridG.cells[shot] != EMPTY):
+            if current_player == J1:
+                J1connect.send(usedMessage)
+            else :
+                J2connect.send(usedMessage)
         else:
-            grids[current_player].cells[shot] = current_player
-            grids[0].play(current_player, shot)
-            current_player = current_player%2+1
-        
-        grids[0].display()
+            if current_player == J1:
+                J1connect.send(freeMessage)
+                gridG.play(1, shot)
+                current_player = J2
+            else:
+                J2connect.send(freeMessage)
+                gridG.play(2, shot)
+                current_player = J1
+        gridG.display()
         
     print("Le jeu est fini")
     
-    if grids[0].gameOver() == J1:
+    if gridG.gameOver() == J1:
         J1connect.send(winMessage)
         J2connect.send(loseMessage)
     else:
