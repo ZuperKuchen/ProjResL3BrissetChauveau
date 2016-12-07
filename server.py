@@ -4,6 +4,22 @@ from grid import *
 import  random
 import  socket
 
+def send_info(grid, connect):
+    J1 = "1"
+    J1 = J1.encode("ascii")
+    J2 = "2"
+    J2 = J2.encode("ascii")
+    free = "0"
+    free = free.encode("ascii")
+    
+    for i in range 9:
+        if grid.cells[i] == 1:
+            connect.send(J1)
+        elif grid.cells[i] == 2:
+            connect.send(J2)
+        else:
+            connect.send(free)
+
 
 def main():
     
