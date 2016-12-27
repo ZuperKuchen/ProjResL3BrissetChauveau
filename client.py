@@ -5,14 +5,17 @@ import socket
 import os, sys
 
 def recep_info(grid, connect):
-    for i in range 9:
+    ok = "k"
+    ok = ok.encode("ascii")
+    for i in range(9):
         recept = connect.recv(1024)
-        if recept == 1:
-            grid.cells[i] = 1
-        elif recept == 2:
-            grid.cells[i] = 2
-        else:
-            grid.cells[i] = EMPTY
+        recept = recept.decode("ascii")
+        if recept == "1" and grid.cells[i] == EMPTY:
+            grid.play(1, i)
+        elif recept == "2" and grid.cells[i] == EMPTY:
+            grid.play(2, i)
+        connect.send(ok)
+        
 
     
 
@@ -38,7 +41,6 @@ def main():
     while not end:
         whatToDo = connect.recv(1024)
         whatToDo = whatToDo.decode("ascii")
-        print(whatToDo)
         if whatToDo == "c":
             shot = int(input ("Quelle case voulez-vous jouer ? "))
             shot = str(shot)
@@ -47,9 +49,8 @@ def main():
 
             shot = int(shot)
             answer = connect.recv(1024)
-            answer.decode("ascii")
-            print(answer)
-            if answer == b'f':
+            answer = answer.decode("ascii")
+            if answer == "f":
                 playerGrid.play(player, shot)
             else :
                 if playerGrid.cells[shot] == EMPTY :
@@ -68,13 +69,10 @@ def main():
             end = True
             
 
+    #On réceptionne les informations de la grille finale
+    recep_info(playerGrid, connect)
+    playerGrid.display()
     
-    
-
-
-
-
-
 
 
     connect.close()
