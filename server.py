@@ -1,8 +1,12 @@
 #!/usr/bin/python3
 
 from grid import *
-import  random
-import  socket
+import random
+import socket
+import time
+
+
+
 
 def send_info(grid, connect):
     J1 = "1"
@@ -12,13 +16,14 @@ def send_info(grid, connect):
     free = "0"
     free = free.encode("ascii")
     
-    for i in range 9:
+    for i in range(9):
         if grid.cells[i] == 1:
             connect.send(J1)
         elif grid.cells[i] == 2:
             connect.send(J2)
         else:
             connect.send(free)
+        connect.recv(1024)
 
 
 def main():
@@ -33,6 +38,7 @@ def main():
     print (J1infos, "J1 vient de se connecter.")
     J2connect, J2infos = connect.accept()
     print (J2infos, "J2 vient de se connecter.")
+
 
     J1 = "1"
     J2 = "2"
@@ -92,15 +98,17 @@ def main():
         gridG.display()
         
     print("Le jeu est fini")
-    
-    if gridG.gameOver() == J1:
+    if gridG.gameOver() == 1:
         J1connect.send(winMessage)
         J2connect.send(loseMessage)
     else:
-        J1connect.send(winMessage)
-        J2connect.send(loseMessage)
+        J2connect.send(winMessage)
+        J1connect.send(loseMessage)
+    time.sleep(1)
 
-
+    #On envoie toute la grille aux deux joueurs
+    send_info(gridG, J1connect)
+    send_info(gridG, J2connect)
 
 
 
