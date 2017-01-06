@@ -91,7 +91,6 @@ def main():
         #On envoie à tous les clients leur statut, s'ils sont joueurs ou spectateurs
         #
         for i in range (len(clients_connectes)) :
-            print(i)
             if i == currentJ1:
                 clients_connectes[i].send(J1)
             elif i == currentJ2:
@@ -147,8 +146,16 @@ def main():
             for i in range (len(clients_connectes)) :
                 if i != currentJ1 and i != currentJ2:
                     clients_connectes[i].send(displayMessage)
-                    time.sleep(0.1)
-                    send_info(gridG, clients_connectes[i])
+                    tpo = clients_connectes[i].recv(1024)
+                    shot = str(shot)
+                    shot = shot.encode("ascii")
+                    clients_connectes[i].send(shot)
+                    tpo = clients_connectes[i].recv(1024)
+                    if current_player == J1:
+                        clients_connectes[i].send(J2)
+                    else :
+                        clients_connectes[i].send(J1)
+                    
             
             
 
