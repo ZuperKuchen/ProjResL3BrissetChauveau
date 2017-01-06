@@ -2,8 +2,10 @@
 \usepackage{lipsum}
 \usepackage[francais]{babel}
 \usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
 \usepackage{url}
 \usepackage[nochapters]{classicthesis} % nochapters
+ 
 
 \begin{document}
     \title{\rmfamily\normalfont\spacedallcaps{Projet Reseau}}
@@ -11,18 +13,42 @@
     \date{} % no date
     
     \maketitle
-    Ici on ecrit l'intro du projet
-    \tableofcontents
+    Le but de se projet était de se familiariser avec le dialogue entre un serveur et un client en Python. A partir du jeu morpion à l'aveugle se jouant contre l'ordinateur, nous avons réalisé un jeu permettant de jouer à plusieurs à distance par le biais d'un serveur.
     
-    \section{Partie 1}
-    Ecrire ici le contenue de la premiere partie
-    \subsection{Sous Partie 1}
-    Idem
-    \subsection{Sous Partie 2}
-    Idem
     
-    \section{Partie 2}
-    Idem
     
+    \section{Deroulement de la partie}
+    Sur la machine  qui doit héberger la partie on lance le ./server.py il se met alors en attente de connexion. Sur les différentes autres machines, on lance le ./client.py <adresseip> (localhost si c'est sur la même machine que le serveur). Les machines attendent une réponse du serveur et dès qu'au moins deux machines sont connectées la partie commence.
+    
+    Le serveur envoie donc aux machines leurs informations, si elle sont joueur 1 et 2 (les deux premières connectées) et spectateur pour les autres. Ensuite la partie commence.
+    
+    On demande au joueur 1 la case qu'il veut jouer, il rentre le numero de la case et l'envoie. Ensuite au joueur 2 et ainsi desuite. Si un joueur donne une case déjà jouée par l'autre il le voit et peut donc rejouer.
+    
+    Une fois la partie finie, on propose à tous les clients connectés, spectateurs ou joueurs, s'ils veulent jouer. Ils ont ainsi trois choix: être spectateur, quitter ou jouer. Dès que deux clients ont envoyé au serveur qu'ils veulent jouer une partie se lance.
+    
+    \section{Le Protocole}
+    Pour le protocole nous devions utiliser un encodage Ascii et envoyer les données en TCP. Nous avons décider d'echanger le moins d'informations possible entre le serveur et le client. Les messages envoyés sont composés d'un caractère. 
+    
+    Les grilles sont donc initialisées chez chaque client et sur le serveur. A chaque coup joué, les joueurs envoient un message au serveur contenant le numéro de la case et si cette case est libre le serveur répond, le joueur joue donc sur sa grille. Si elle est déjà utilisée, le joueur joue le symbole de l'autre sur sa grille. Concernant les spectateurs, ils recoivent le coup joué à chaque tour. Ce système permet d'éviter de renvoyer toutes les informations de la grille à chaque tour, ce qui serait peu efficace niveau complexité.
+    
+    Hormis ces échanges, les messages envoyés du serveur aux clients sont des messages d'état de la partie, quand c'est à un joueur de jouer il lui envoie un message lui demandant sa case, quand un joueur a gagné ou perdu il lui indique et envoie à tous les spectateurs que la partie est finie.
+    
+    Ainsi, à la fin de la partie il est nécessaire d'envoyer le contenu de la grille finale à chaque joueur, qui, de leur coté, n'ont que leurs coups joués (et ceux découverts). C'est couteux (compaté au reste) mais à complexité constante (2 fois 9 cases à envoyer) donc on a pu faire cette concession.
+    
+    \section{Problemes rencontres}
+    Le problème récurents lorsque l'on essayait de gérer les échanges entre le serveur et les clients etait celui de la coordination, si nous voulons que le serveur envoie plusieurs informations à la suite au client (pour l'envoie des coups joués aux spectateurs par exemple) il faut attendre une réponse du client à chaque message. Si on ne le fait pas, les messages sont perdus. Du coup la solution que l'on utilise est celle du message "ok" envoyé par le client pour que le serveur attende simplement que le client ai bien reçu le message précedent pour continuer.
+    
+    Un autre problème que nous avons rencontré : gérer les déconnexions non prévues (pas initiées par un "n" à la fin d'une partie), nous n'avons pas trouvé de solutions à cela. Nous aurions pu utiliser des try catch pour tous les messages envoyés, mais si un client se déconnecte alors que le serveur attend une réponse, nous ne savons pas gérer cela.
+    
+    Aussi nous voulions créer un système de point, mais avec la structure du jeu ça n'était pas vraiment adapté, en effet les joueurs peuvent changer à chaque partie donc stocker les points serait absurde.
+    
+    
+    \section{Ameliorations possibles}
+    
+    La premiere amélioration à laquelle nous pensons est celle évoquée dans les problèmes rencontrées, celle de la gestion des déconnexions. Avec de meilleures connaissances et surtout en la prévoyant pendant la création initiale des clients et serveur car si le jeu est créé entièrement sans en prendre compte il est très difficile de la greffer à la fin.
+    
+    Aussi pour le système de point nous aurions pu les enregistrer pour chaque adresse ip ayant été connectée depuis le lancement du serveur.
+    
+    Dernière amélioration, celle permettant à chaque client d'envoyer un message au serveur à n'importe quel moment pour se déconnecter proprement, avec la gestion de threads en plus nous penson cela possible.
 
 \end{document}
