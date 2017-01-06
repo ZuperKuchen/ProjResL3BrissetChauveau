@@ -31,6 +31,7 @@ def main():
     #
     player = connect.recv(1024)
     player = player.decode("ascii")
+    print(player)
 
     if player == "1":
         player = 1
@@ -46,7 +47,11 @@ def main():
     #Initialisation
     #
     playerGrid = grid()
+    playerGrid.display()
     end = False
+    ok = "k"
+    ok = ok.encode("ascii")
+    
     
     while not end:
         #On attend l'instruction du serveur
@@ -79,7 +84,16 @@ def main():
         #Le server envoie la grille à afficher (spectateur)
         #
         if whatToDo == "d":
-            recep_info(playerGrid, connect)
+            connect.send(ok)
+            shot = connect.recv(1024)
+            shot = shot.decode("ascii")
+            shot = int(shot)
+            connect.send(ok)
+            wichPlayer = connect.recv(1024)
+            wichPlayer = wichPlayer.decode("ascii")
+            wichPlayer = int(wichPlayer)
+            if playerGrid.cells[shot] == EMPTY :
+                playerGrid.play(wichPlayer, shot)
             playerGrid.display()
 
         #Le client a gagné (joueur)
@@ -103,10 +117,11 @@ def main():
             
         if whatToDo == "w" or whatToDo == "l" or whatToDo == "e":
             replay = "a"
-            while replay != "o" and replay != "n":
-                replay = input ("Voulez-vous rejouer ? <o> pour oui <n> pour non, et attendre pour être spectateur.")
+            while replay != "o" and replay != "n" and replay != "s":
+                replay = input ("Voulez-vous rejouer ? <o> pour oui <n> pour non <s> pour spectateur.")
             replay = replay.encode("ascii")
             connect.send(replay)
+            replay = replay.decode("ascii")
 
             if replay == "n":
                 end = True
